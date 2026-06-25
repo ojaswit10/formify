@@ -1,65 +1,221 @@
-import Image from "next/image";
+'use client'
+
+import { useState, useCallback } from 'react'
+import { useSession } from 'next-auth/react'
+import { extractFromDocx, extractFromPdf } from '@/lib/extract'
+import { Question, AppState, toQuestion, RawQuestion } from '@/types/formify'
+
+import Navbar from '@/components/Navbar'
+import UploadZone from '@/components/UploadZone'
+import QuestionEditor from '@/components/QuestionEditor'
+import SignInModal from '@/components/SignInModal'
+import SuccessState from '@/components/SuccessState'
+
+// ── Read + clear sessionStorage once on first render ──────────────────────
+// Done outside the component so the object is read exactly once and shared
+// across all useState initializers — no repeated reads, no double-clear
+interface PendingState {
+  questions: Question[]
+  fileName: string | null
+  formTitle: string
+  text: string
+}
+
+function popPendingState(): PendingState | null {
+  if (typeof window === 'undefined') return null
+  const raw = sessionStorage.getItem('formify_pending')
+  if (!raw) return null
+  sessionStorage.removeItem('formify_pending')
+  try {
+    return JSON.parse(raw) as PendingState
+  } catch {
+    return null
+  }
+}
+
+// Called once at module evaluation time — safe because this file is client-only
+const pending = typeof window !== 'undefined' ? popPendingState() : null
 
 export default function Home() {
+  const { data: session } = useSession()
+
+  const [appState, setAppState]   = useState<AppState>(pending ? 'ready' : 'idle')
+  const [fileName, setFileName]   = useState<string | null>(pending?.fileName ?? null)
+  const [text, setText]           = useState<string>(pending?.text ?? '')
+  const [questions, setQuestions] = useState<Question[]>(pending?.questions ?? [])
+  const [formTitle, setFormTitle] = useState<string>(pending?.formTitle ?? '')
+  const [formUrl, setFormUrl]     = useState<string | null>(null)
+  const [error, setError]         = useState<string | null>(null)
+  const [showModal, setShowModal] = useState(false)
+  const [dragOver, setDragOver]   = useState(false)
+
+  function reset() {
+    setAppState('idle')
+    setFileName(null)
+    setText('')
+    setQuestions([])
+    setFormTitle('')
+    setFormUrl(null)
+    setError(null)
+  }
+
+  const processFile = useCallback(async (file: File) => {
+    if (!file.name.endsWith('.docx') && !file.name.endsWith('.pdf')) {
+      setError('Unsupported file type. Please upload a .docx or .pdf file.')
+      return
+    }
+    setError(null)
+    setFileName(file.name)
+    setAppState('analyzing')
+
+    try {
+      const extracted = file.name.endsWith('.docx')
+        ? await extractFromDocx(file)
+        : await extractFromPdf(file)
+
+      setText(extracted)
+
+      const res = await fetch('/api/parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: extracted }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error); setAppState('idle'); return }
+
+      const parsed: Question[] = (data.questions as RawQuestion[]).map(toQuestion)
+      setQuestions(parsed)
+      setAppState('ready')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
+      setAppState('idle')
+    }
+  }, [])
+
+  async function handleCreateForm() {
+    if (!session) {
+      sessionStorage.setItem(
+        'formify_pending',
+        JSON.stringify({ questions, fileName, formTitle, text })
+      )
+      setShowModal(true)
+      return
+    }
+    if (!formTitle.trim()) { setError('Please enter a form title.'); return }
+
+    setError(null)
+    setAppState('creating')
+
+    try {
+      const res = await fetch('/api/create-form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: formTitle, questions }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error); setAppState('ready'); return }
+
+      setFormUrl(data.formUrl)
+      setAppState('done')
+    } catch {
+      setError('Network error. Please try again.')
+      setAppState('ready')
+    }
+  }
+
+  function handleDragOver(e: React.DragEvent) { e.preventDefault(); setDragOver(true) }
+  function handleDragLeave() { setDragOver(false) }
+  async function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragOver(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) await processFile(file)
+  }
+
+  const isDone  = appState === 'done'
+  const isReady = appState === 'ready' || appState === 'creating'
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <Navbar />
+
+      {isDone && formUrl ? (
+        <div className="page-wrapper">
+          <SuccessState formUrl={formUrl} onStartOver={reset} />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+      ) : (
+        <div className={isReady ? 'page-wrapper page-wrapper--top' : 'page-wrapper'}>
+          <div className="hero">
+            <h1>Turn any question paper into a Google Form.</h1>
+            <p>Upload a PDF or DOCX. We handle the rest.</p>
+          </div>
+
+          <div className="content-area">
+            <UploadZone
+              state={appState === 'done' ? 'idle' : appState}
+              fileName={fileName}
+              dragOver={dragOver}
+              onFile={processFile}
+              onReset={reset}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+            {error && (
+              <p className="error-msg">
+                <span>⚠</span> {error}
+              </p>
+            )}
+
+            {isReady && questions.length > 0 && (
+              <div className="step2">
+                <span className="questions-badge">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="9 12 11 14 15 10" />
+                  </svg>
+                  {questions.length} question{questions.length !== 1 ? 's' : ''} detected — review and edit below
+                </span>
+
+                <QuestionEditor questions={questions} onChange={setQuestions} />
+
+                <div className="create-section">
+                  <div>
+                    <label className="form-label" htmlFor="form-title">Form title</label>
+                    <input
+                      id="form-title"
+                      className="form-input"
+                      type="text"
+                      placeholder="e.g. Chapter 5 Quiz"
+                      value={formTitle}
+                      onChange={(e) => setFormTitle(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleCreateForm()}
+                      disabled={appState === 'creating'}
+                    />
+                  </div>
+                  <button
+                    className="btn-primary"
+                    onClick={handleCreateForm}
+                    disabled={appState === 'creating' || questions.length === 0}
+                  >
+                    {appState === 'creating' ? (
+                      <>
+                        <div className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
+                        Creating form…
+                      </>
+                    ) : (
+                      'Create Google Form →'
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </main>
-    </div>
-  );
+      )}
+
+      {showModal && <SignInModal onClose={() => setShowModal(false)} />}
+    </>
+  )
 }
