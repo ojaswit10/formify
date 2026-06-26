@@ -146,6 +146,7 @@ export default function Home() {
       ) : (
         <div className={isReady ? 'page-wrapper page-wrapper--top' : 'page-wrapper'}>
           <div className="hero">
+            <img src="/logo.png" alt="Formify Logo" className="hero-logo" />
             <h1>Turn any question paper into a Google Form.</h1>
             <p>Upload a PDF or DOCX. We handle the rest.</p>
           </div>

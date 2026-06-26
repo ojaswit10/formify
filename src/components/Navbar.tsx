@@ -1,13 +1,17 @@
 'use client'
 
 import { useSession, signIn, signOut } from 'next-auth/react'
+import Link from 'next/link'
 
 export default function Navbar() {
   const { data: session, status } = useSession()
 
   return (
     <nav className="navbar">
-      <span className="navbar-logo">Formify</span>
+      <Link href="/" className="navbar-logo-container">
+        <img src="/logo.png" alt="Formify Logo" className="navbar-logo-img" />
+        <span className="navbar-logo">Formify</span>
+      </Link>
 
       <div className="navbar-right">
         {status === 'loading' ? (

@@ -22,6 +22,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Formify — Turn question papers into Google Forms",
   description: "Upload a PDF or DOCX and instantly generate a Google Form from your questions.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
