@@ -63,14 +63,10 @@ export default function PrivacyPage() {
         </p>
         <ul>
           <li>
-            <strong>Google Forms API (<code>forms.body</code> scope)</strong> — used exclusively
-            to create new Google Forms and populate them with questions from your uploaded document.
-            We do not read, modify, or delete any existing forms.
+            <strong><code>forms.body</code></strong> — &quot;The app creates Google Forms on behalf of the user by converting uploaded question papers. This scope is required to create and populate form items.&quot;
           </li>
           <li>
-            <strong>Google Drive API (<code>drive.file</code> scope)</strong> — used to save the
-            newly created Google Form to your Drive. This scope is limited to files created by
-            Formify and does not grant access to any of your existing Drive files.
+            <strong><code>drive.file</code></strong> — &quot;The app saves created Google Forms to the user&apos;s Google Drive. This scope is limited to files created by the app and does not access any existing Drive files.&quot;
           </li>
         </ul>
         <p>
