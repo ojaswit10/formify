@@ -148,6 +148,14 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  // ── Scope check ───────────────────────────────────────────────────────
+  if (session.has_required_scopes === false) {
+    return NextResponse.json(
+      { error: "Missing permissions. Please sign out and sign in again, making sure to allow all requested permissions." },
+      { status: 403 }
+    )
+  }
+
   // ── Rate limit: 10 forms per user per 10 minutes ──────────────────────
   const userId = session.user?.email ?? 'anonymous'
   if (!rateLimit(`create-form:${userId}`, 10, 10 * 60 * 1000)) {
