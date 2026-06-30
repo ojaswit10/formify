@@ -217,6 +217,35 @@ export default function Home() {
       )}
 
       {showModal && <SignInModal onClose={() => setShowModal(false)} />}
+        <footer style={{
+  position: 'fixed',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  padding: '0.75rem 1.5rem',
+  display: 'flex',
+  justifyContent: 'center',
+  gap: '1.5rem',
+  borderTop: '1px solid var(--border)',
+  background: 'rgba(250,250,250,0.85)',
+  backdropFilter: 'blur(12px)',
+  fontSize: '0.8125rem',
+  color: 'var(--text-subtle)',
+}}>
+  <a href="/privacy" style={{ color: 'var(--text-subtle)', textDecoration: 'none' }}
+    onMouseOver={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+    onMouseOut={e => (e.currentTarget.style.color = 'var(--text-subtle)')}>
+    Privacy Policy
+  </a>
+  <span>·</span>
+  <a href="/terms" style={{ color: 'var(--text-subtle)', textDecoration: 'none' }}
+    onMouseOver={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+    onMouseOut={e => (e.currentTarget.style.color = 'var(--text-subtle)')}>
+    Terms of Service
+  </a>
+  <span>·</span>
+  <span>© 2025 Formify</span>
+</footer>
     </>
   )
 }
