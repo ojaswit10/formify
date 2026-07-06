@@ -178,6 +178,7 @@ export default function Home() {
               ))}
             </div>
           )}
+          
             <UploadZone
               state={appState === 'done' ? 'idle' : appState}
               fileName={fileName}
@@ -242,28 +243,36 @@ export default function Home() {
         </div>
       )}
 
+        
       {/* Footer — always rendered, never inside a conditional */}
-    <footer style={{
-      width: '100%',
-      padding: '1rem 1.5rem',
-      display: 'flex',
-      justifyContent: 'center',
-      gap: '1.5rem',
-      borderTop: '1px solid var(--border)',
-      background: 'var(--bg)',
-      fontSize: '0.8125rem',
-      color: 'var(--text-subtle)',
-    }}>
-      <a href="/privacy" style={{ color: 'var(--text-subtle)', textDecoration: 'none' }}>
-        Privacy Policy
-      </a>
-      <span>·</span>
-      <a href="/terms" style={{ color: 'var(--text-subtle)', textDecoration: 'none' }}>
-        Terms of Service
-      </a>
-      <span>·</span>
-      <span>© 2025 Formify</span>
-    </footer>
+      <footer style={{
+  width: '100%',
+  padding: '1rem 1.5rem',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '0.5rem',
+  borderTop: '1px solid var(--border)',
+  background: 'var(--bg)',
+  fontSize: '0.8125rem',
+  color: 'var(--text-subtle)',
+}}>
+  <p style={{ textAlign: 'center', maxWidth: 560, lineHeight: 1.5 }}>
+    Formify requests access to your Google account only to create forms in your Drive. 
+    We never read, modify, or access any existing files.
+  </p>
+  <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+    <a href="/privacy" style={{ color: 'var(--text-subtle)', textDecoration: 'none' }}>
+      Privacy Policy
+    </a>
+    <span>·</span>
+    <a href="/terms" style={{ color: 'var(--text-subtle)', textDecoration: 'none' }}>
+      Terms of Service
+    </a>
+    <span>·</span>
+    <span>© 2025 Formify</span>
+  </div>
+</footer>
 
     {showModal && <SignInModal onClose={() => setShowModal(false)} />}
     </>
