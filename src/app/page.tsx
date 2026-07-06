@@ -147,11 +147,37 @@ export default function Home() {
         <div className={isReady ? 'page-wrapper page-wrapper--top' : 'page-wrapper'}>
           <div className="hero">
             <img src="/logo.png" alt="Formify Logo" className="hero-logo" />
-            <h1>Turn any question paper into a Google Form.</h1>
-            <p>Upload a PDF or DOCX. We handle the rest.</p>
+            <h1>Turn any question paper into a Google Form</h1>
+           <p>Upload a PDF or DOCX. We handle the rest.</p>
           </div>
-
+        
           <div className="content-area">
+          {/* How it works */}
+          {appState === 'idle' && (
+                <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+                alignSelf: 'stretch',
+              }}>
+              {[
+                { step: '1', text: 'Upload a PDF or DOCX question paper' },
+                { step: '2', text: 'AI extracts and structures your questions automatically' },
+                { step: '3', text: 'Review, edit, then create a Google Form in your Drive with one click' },
+              ].map(({ step, text }) => (
+                <div key={step} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{
+                    width: 22, height: 22, borderRadius: '50%',
+                    background: 'var(--indigo-light)', color: 'var(--indigo)',
+                    fontSize: '0.75rem', fontWeight: 700,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>{step}</span>
+                  <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{text}</span>
+                </div>
+              ))}
+            </div>
+          )}
             <UploadZone
               state={appState === 'done' ? 'idle' : appState}
               fileName={fileName}
@@ -216,36 +242,30 @@ export default function Home() {
         </div>
       )}
 
-      {showModal && <SignInModal onClose={() => setShowModal(false)} />}
-        <footer style={{
-  position: 'fixed',
-  bottom: 0,
-  left: 0,
-  right: 0,
-  padding: '0.75rem 1.5rem',
-  display: 'flex',
-  justifyContent: 'center',
-  gap: '1.5rem',
-  borderTop: '1px solid var(--border)',
-  background: 'rgba(250,250,250,0.85)',
-  backdropFilter: 'blur(12px)',
-  fontSize: '0.8125rem',
-  color: 'var(--text-subtle)',
-}}>
-  <a href="/privacy" style={{ color: 'var(--text-subtle)', textDecoration: 'none' }}
-    onMouseOver={e => (e.currentTarget.style.color = 'var(--text-muted)')}
-    onMouseOut={e => (e.currentTarget.style.color = 'var(--text-subtle)')}>
-    Privacy Policy
-  </a>
-  <span>·</span>
-  <a href="/terms" style={{ color: 'var(--text-subtle)', textDecoration: 'none' }}
-    onMouseOver={e => (e.currentTarget.style.color = 'var(--text-muted)')}
-    onMouseOut={e => (e.currentTarget.style.color = 'var(--text-subtle)')}>
-    Terms of Service
-  </a>
-  <span>·</span>
-  <span>© 2025 Formify</span>
-</footer>
+      {/* Footer — always rendered, never inside a conditional */}
+    <footer style={{
+      width: '100%',
+      padding: '1rem 1.5rem',
+      display: 'flex',
+      justifyContent: 'center',
+      gap: '1.5rem',
+      borderTop: '1px solid var(--border)',
+      background: 'var(--bg)',
+      fontSize: '0.8125rem',
+      color: 'var(--text-subtle)',
+    }}>
+      <a href="/privacy" style={{ color: 'var(--text-subtle)', textDecoration: 'none' }}>
+        Privacy Policy
+      </a>
+      <span>·</span>
+      <a href="/terms" style={{ color: 'var(--text-subtle)', textDecoration: 'none' }}>
+        Terms of Service
+      </a>
+      <span>·</span>
+      <span>© 2025 Formify</span>
+    </footer>
+
+    {showModal && <SignInModal onClose={() => setShowModal(false)} />}
     </>
   )
 }

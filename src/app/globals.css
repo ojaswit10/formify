@@ -28,11 +28,9 @@ html, body {
 }
 
 body {
-  background: var(--bg);
-  color: var(--text-primary);
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 /* ── Navbar ────────────────────────────────────── */
@@ -119,7 +117,7 @@ body {
 
 /* ── Main page wrapper ─────────────────────────── */
 .page-wrapper {
-  min-height: calc(100vh - 56px);
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -131,7 +129,6 @@ body {
   justify-content: flex-start;
   padding-top: 2.5rem;
 }
-
 /* ── Hero ──────────────────────────────────────── */
 .hero {
   text-align: center;
@@ -150,6 +147,9 @@ body {
 .hero p {
   font-size: 0.9375rem;
   color: var(--text-muted);
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
 /* ── Content area ──────────────────────────────── */
@@ -515,8 +515,9 @@ body {
 .hero-logo {
   width: 64px;
   height: 64px;
-  margin-bottom: 1.25rem;
+  margin: 0 auto 1.25rem;
   object-fit: contain;
+  display: block;
 }
 
 .modal-title {
