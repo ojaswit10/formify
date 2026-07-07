@@ -76,6 +76,9 @@ export default function PrivacyPage() {
           </a>
           , including the Limited Use requirements.
         </p>
+        <p>
+          Google user data obtained through these APIs is never used to train, fine-tune, or improve any AI or machine learning model, including the AI models used by Formify for question extraction.
+        </p>
       </Section>
 
       <Section title="5. Third-party services">
@@ -113,9 +116,7 @@ export default function PrivacyPage() {
 
       <Section title="7. Data retention">
         <p>
-          We do not operate a database. No user data, documents, or parsed questions are
-          persisted beyond the duration of your session. When you sign out, your session
-          token is invalidated and no record of your activity remains on our servers.
+          We do not operate a database. No Google user data, uploaded documents, or parsed questions are persisted beyond the duration of your active session. Your Google access token is stored in an encrypted session cookie that expires when you sign out or after 30 days of inactivity. You can revoke Formify&apos;s access to your Google account at any time by visiting myaccount.google.com/permissions.
         </p>
       </Section>
 
@@ -128,6 +129,16 @@ export default function PrivacyPage() {
             myaccount.google.com/permissions
           </a>{' '}
           and removing Formify from the list of connected apps.
+        </p>
+      </Section>
+
+      <Section title="8a. Data protection and security">
+        <p>
+          We implement standard security measures to protect your sensitive data. All data transferred 
+          between your browser and our servers, as well as between our servers and Google or Groq APIs, 
+          is encrypted in transit using Transport Layer Security (TLS 1.2 or higher/HTTPS). 
+          Furthermore, your Google OAuth access token is stored exclusively in your browser&apos;s 
+          encrypted session cookie and is never written to disk or any database.
         </p>
       </Section>
 
