@@ -1,9 +1,20 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import type { Metadata } from 'next'
 
-export const metadata = {
-  title: 'Privacy Policy — Formify',
-  description: 'Privacy policy for Formify',
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description:
+    'Read the Formify privacy policy. We collect minimal data, never store your files or questions, and use your Google account only to create forms in your Drive.',
+  alternates: {
+    canonical: 'https://formif.me/privacy',
+  },
+  openGraph: {
+    title: 'Privacy Policy | Formify',
+    description:
+      'Read the Formify privacy policy. We collect minimal data and never store your uploaded documents.',
+    url: 'https://formif.me/privacy',
+  },
 }
 
 export default function PrivacyPage() {

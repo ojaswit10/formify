@@ -1,9 +1,20 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import type { Metadata } from 'next'
 
-export const metadata = {
-  title: 'Terms of Service — Formify',
-  description: 'Terms of service for Formify',
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description:
+    'Read the Formify terms of service. Learn about acceptable use, uploaded content, disclaimers, and how the free AI-powered question paper to Google Form converter works.',
+  alternates: {
+    canonical: 'https://formif.me/terms',
+  },
+  openGraph: {
+    title: 'Terms of Service | Formify',
+    description:
+      'Read the Formify terms of service covering acceptable use, content rights, disclaimers, and more.',
+    url: 'https://formif.me/terms',
+  },
 }
 
 export default function TermsPage() {
