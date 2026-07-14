@@ -6,6 +6,12 @@ import Link from 'next/link'
 export default function Navbar() {
   const { data: session, status } = useSession()
 
+  // Show first name only if available, otherwise truncate email before the @
+  // Keeps the navbar clean on both mobile and desktop
+  const displayName = session?.user?.name
+    ? session.user.name.split(' ')[0]
+    : session?.user?.email?.split('@')[0] ?? ''
+
   return (
     <nav className="navbar">
       <Link href="/" className="navbar-logo-container">
@@ -18,9 +24,7 @@ export default function Navbar() {
           <span className="navbar-email">Loading…</span>
         ) : session ? (
           <>
-            <span className="navbar-email">
-              {session.user?.name ?? session.user?.email}
-            </span>
+            <span className="navbar-email">{displayName}</span>
             <button className="btn-signout" onClick={() => signOut()}>
               Sign out
             </button>
